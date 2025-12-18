@@ -1,7 +1,8 @@
 "use client"
 
 
-import { Post } from "@/app/_components/_types/Post";
+import { MicroCmsPost } from "@/app/_components/_types/MicroCmsPost";
+// import { Post } from "@/app/_components/_types/Post";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +11,7 @@ import { useEffect, useState } from "react";
 export default function PostDetail() {
   const [loading, setLoading] = useState<boolean>(true)
   const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<Post | null>(null)
+  const [post, setPost] = useState<MicroCmsPost | null>(null)
 
   useEffect(() => {
     const fetcher = async () => {
@@ -19,14 +20,25 @@ export default function PostDetail() {
         return;
       }
       try {
-        const res = await fetch(`https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`)
+
+        setLoading(true)
+        const res = await fetch(
+          `https://0ild99kl03.microcms.io/api/v1/posts/${id}`,// microCMSのエンドポイント
+          {
+            headers: {
+              'X-MICROCMS-API-KEY': 'fhS8z6y8bhEU5ecUZqCwyoAceQBuP2YbYqq0', // APIキーをセット
+            },
+          },
+        )
 
         if (!res.ok) {
           throw new Error("Failed to fetch posts");
         }
 
-        const data: { post: Post } = await res.json()
-        setPost(data.post)
+        const data = await res.json()
+        setPost(data) // dataをそのままセット
+        setLoading(false)
+
       } catch (err) {
         console.error("Error", err)
       } finally {
@@ -52,7 +64,7 @@ export default function PostDetail() {
   return (
     <div className='mx-auto my-10 max-w-[800px] flex flex-col p-4'>
       <div className=''>
-        <Image src={post.thumbnailUrl} width={800} height={400} alt="画像" />
+        <Image src={post.thumbnail.url} width={800} height={400} alt="画像" />
       </div>
       <div className='p-4'>
         <div className='flex justify-between'>
@@ -61,8 +73,8 @@ export default function PostDetail() {
           </div>
           <div className="flex">
             {post.categories.map((arr) => (
-              <div className="block py-[3.2px] px-[6.4px] mr-2 text-[#0066cc] border border-current rounded-md text-xs" key={arr}>
-                {arr}
+              <div className="block py-[3.2px] px-[6.4px] mr-2 text-[#0066cc] border border-current rounded-md text-xs" key={arr.id}>
+                {arr.name}
               </div>
             ))}
           </div>
