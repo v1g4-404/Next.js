@@ -15,7 +15,7 @@ export default function Home() {
       try {
         const res = await fetch('https://0ild99kl03.microcms.io/api/v1/posts', {// 管理画面で取得したエンドポイントを入力してください。
           headers: { // fetch関数の第二引数にheadersを設定でき、その中にAPIキーを設定します。
-            'X-MICROCMS-API-KEY': 'fhS8z6y8bhEU5ecUZqCwyoAceQBuP2YbYqq0', // 管理画面で取得したAPIキーを入力してください。
+            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROMS_API_KEY as string, // 管理画面で取得したAPIキーを入力してください。
           },
         })
 

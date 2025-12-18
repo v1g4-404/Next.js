@@ -26,7 +26,7 @@ export default function PostDetail() {
           `https://0ild99kl03.microcms.io/api/v1/posts/${id}`,// microCMSのエンドポイント
           {
             headers: {
-              'X-MICROCMS-API-KEY': 'fhS8z6y8bhEU5ecUZqCwyoAceQBuP2YbYqq0', // APIキーをセット
+              'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROMS_API_KEY as string, // APIキーをセット
             },
           },
         )
