@@ -2,24 +2,30 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Post } from "./_components/_types/Post";
+// import { Post } from "./_components/_types/Post";
+import { MicroCmsPost } from "./_components/_types/MicroCmsPost";
 
 
 export default function Home() {
   const [loading, setLoading] = useState<boolean>(true)
-  const [posts, setPosts] = useState<Post[]>([])
+  const [posts, setPosts] = useState<MicroCmsPost[]>([])
 
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetch("https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts")
+        const res = await fetch('https://0ild99kl03.microcms.io/api/v1/posts', {// 管理画面で取得したエンドポイントを入力してください。
+          headers: { // fetch関数の第二引数にheadersを設定でき、その中にAPIキーを設定します。
+            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROMS_API_KEY as string, // 管理画面で取得したAPIキーを入力してください。
+          },
+        })
 
         if (!res.ok) {
           throw new Error("Failed to fetch posts");
         }
 
-        const data: { posts: Post[] } = await res.json()
-        setPosts(data.posts)
+        const { contents } = await res.json()
+        setPosts(contents)
+
       } catch (err) {
         console.error("Error", err)
       } finally {
@@ -56,8 +62,8 @@ export default function Home() {
 
                   <div className="flex">
                     {post.categories.map((arr) => (
-                      <span className="block py-[3.2px] px-[6.4px] mr-2 text-[#0066cc] border border-current rounded-md text-xs" key={arr}>
-                        {arr}
+                      <span key={arr.id} className="block py-[3.2px] px-[6.4px] mr-2 text-[#0066cc] border border-current rounded-md text-xs">
+                        {arr.name}
                       </span>
                     ))}
                   </div>
