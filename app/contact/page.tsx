@@ -79,13 +79,10 @@ export default function Contact() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/contacts",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
+
+      //*問い合わせAPIにする
+      const res = await fetch('/api/posts', { cache: 'no-store'}) 
+      //
 
       if (!res.ok) {
         throw new Error("Failed to submit");

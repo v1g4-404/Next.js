@@ -1,8 +1,14 @@
-export interface MicroCmsPost {
-  id: string
+export type ApiPost = {
+  id: number
   title: string
   content: string
-  createdAt: string
-  categories: { id: string; name: string }[]
-  thumbnail: { url: string; height: number; width: number }
+  thumbnailUrl: string
+  createdAt: string // JSONだとDateは文字列になるのが普通
+  updatedAt: string
+  postCategories: {
+    category: {
+      id: number
+      name: string
+    }
+  }[]
 }
