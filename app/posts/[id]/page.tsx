@@ -1,7 +1,7 @@
 "use client"
 
 
-import { ApiPost } from "@/app/_components/_types/Types";
+import { ApiPost } from "@/app/_components/_types/Posts";
 // import { Post } from "@/app/_components/_types/Post";
 import Image from "next/image";
 import { useParams } from "next/navigation";

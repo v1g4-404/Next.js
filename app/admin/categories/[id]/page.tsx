@@ -38,12 +38,13 @@ export default function Page() {
     try {
       setIsSubmitting(true)
 
+      const body: UpdateCategoryRequestBody = {name}
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name } satisfies UpdateCategoryRequestBody)
+        body: JSON.stringify(body)
       })
       await res.json();
       alert('更新しました')
