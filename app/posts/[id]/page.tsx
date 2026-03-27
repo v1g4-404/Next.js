@@ -1,7 +1,7 @@
 "use client"
 
 
-import { ApiPost } from "@/app/_components/_types/MicroCmsPost";
+import { ApiPost } from "@/app/_components/_types/Types";
 // import { Post } from "@/app/_components/_types/Post";
 import Image from "next/image";
 import { useParams } from "next/navigation";

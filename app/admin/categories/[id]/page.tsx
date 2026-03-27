@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react"
 import { Form } from '../_components/Form'
 import { useParams, useRouter } from "next/navigation";
+import { UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
 
 
 export default function Page() {
@@ -33,8 +34,6 @@ export default function Page() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const name = form.get('name');
 
     try {
       setIsSubmitting(true)
@@ -44,7 +43,7 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name } satisfies UpdateCategoryRequestBody)
       })
       await res.json();
       alert('更新しました')

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ApiPost } from "./_components/_types/MicroCmsPost"
+import { ApiPost } from "./_components/_types/Types"
 
 export default function Home() {
   const [loading, setLoading] = useState<boolean>(true)

@@ -3,6 +3,7 @@
 import { Form } from "../_components/Form"
 import { FormEvent, useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { PostShowResponse } from "@/app/api/admin/posts/[id]/route"
 
 export default function Page() {
 
@@ -22,10 +23,10 @@ export default function Page() {
           throw new Error('カテゴリーの取得に失敗しました')
         }
 
-        const data = await res.json()
-        setTitle(data.post.title ?? '')
-        setContent(data.post.content ?? '')
-        setThumbnailUrl(data.post.thumbnailUrl ?? '')
+        const data: PostShowResponse = await res.json()
+        setTitle(data.post.title)
+        setContent(data.post.content)
+        setThumbnailUrl(data.post.thumbnailUrl)
         setCategories(data.post.postCategories.map((pc: { category: { id: number } }) => ({ id: pc.category.id })))
       } catch (err) {
         console.log(err)
