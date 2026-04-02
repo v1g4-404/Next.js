@@ -1,3 +1,4 @@
+import { supabase } from '@/app/_libs/supabase';
 import { prisma } from '@/app/_libs/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,6 +16,11 @@ export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
   const { id } = await params
 
   try {
@@ -47,6 +53,11 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 

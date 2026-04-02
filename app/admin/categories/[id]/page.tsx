@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react"
 import { Form } from '../_components/Form'
 import { useParams, useRouter } from "next/navigation";
 import { UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
 export default function Page() {
@@ -12,25 +13,31 @@ export default function Page() {
   const [isSubmiting, setIsSubmitting] = useState(false);
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { token } = useSupabaseSession()
 
   useEffect(() => {
+    if (!token) return
+
     const fetchCategory = async () => {
       try {
-        const res = await fetch(`/api/admin/categories/${id}`)
-
+        const res = await fetch(`/api/admin/categories/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: token,
+          },
+        })
         if (!res.ok) {
           throw new Error('カテゴリーの取得に失敗しました')
         }
-
         const data = await res.json()
         setName(data.category.name ?? '')
       } catch (err) {
         console.log(err)
       }
     }
-
     fetchCategory()
-  }, [id])
+  }, [id, token])
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +45,7 @@ export default function Page() {
     try {
       setIsSubmitting(true)
 
-      const body: UpdateCategoryRequestBody = {name}
+      const body: UpdateCategoryRequestBody = { name }
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: {

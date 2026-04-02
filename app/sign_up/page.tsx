@@ -1,31 +1,33 @@
 'use client'
 
-import { supabase } from '@/app/_libs/supabase'
-import { useRouter } from 'next/navigation'
+import { supabase } from '@/app/_libs/supabase' // 前の工程で作成したファイル
 import { useState } from 'react'
 
 export default function Page() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `http://localhost:3000/login`,
+      },
     })
-
     if (error) {
-      alert('ログインに失敗しました')
+      alert('登録に失敗しました')
     } else {
-      router.replace('/admin/posts')
+      setEmail('')
+      setPassword('')
+      alert('確認メールを送信しました。')
     }
-    setIsLoading(false)
+    setIsSubmitting(false)
   }
 
   return (
@@ -46,7 +48,8 @@ export default function Page() {
             placeholder="name@company.com"
             required
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
+            value={email}
+            disabled={isSubmitting}
           />
         </div>
         <div>
@@ -64,7 +67,8 @@ export default function Page() {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             required
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
+            value={password}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -72,9 +76,9 @@ export default function Page() {
           <button
             type="submit"
             className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            ログイン
+            登録
           </button>
         </div>
       </form>

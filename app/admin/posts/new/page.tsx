@@ -3,22 +3,23 @@
 import { Form } from '../_components/Form'
 import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
 
 export default function Page() {
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [thumbnailUrl, setThumbnailUrl] = useState('')
   const [categories, setCategories] = useState<{ id: number }[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
+  const { token } = useSupabaseSession()
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState('')
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget)
     const title = form.get('title')
     const content = form.get('content')
-    const thumbnailUrl = form.get('thumbnailUrl')
 
 
     try {
@@ -28,8 +29,9 @@ export default function Page() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token!,
         },
-        body: JSON.stringify({ title, content, thumbnailUrl, categories })
+        body: JSON.stringify({ title, content, categories, thumbnailImageUrl })
       })
       const data = await res.json()
       console.log(data)
@@ -55,12 +57,12 @@ export default function Page() {
         setTitle={setTitle}
         content={content}
         setContent={setContent}
-        thumbnailUrl={thumbnailUrl}
-        setThumbnailUrl={setThumbnailUrl}
         categories={categories}
         setCategories={setCategories}
         onSubmit={handleSubmit}
         disabled={isSubmitting}
+        token={token}
+        onThumbnailImageUrlChange={setThumbnailImageUrl}
       />
     </>
   )

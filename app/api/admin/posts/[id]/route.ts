@@ -1,3 +1,4 @@
+import { supabase } from './../../../../_libs/supabase';
 import { prisma } from '@/app/_libs/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -12,19 +13,24 @@ export type PostShowResponse = {
     id: number
     title: string
     content: string
-    thumbnailUrl: string
+    thumbnailImageUrl: string
     createdAt: Date
     updatedAt: Date
     postCategories: {
-      category:Category
+      category: Category
     }[]
   }
 }
 
 export const GET = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
   const { id } = await params
 
   try {
@@ -65,7 +71,7 @@ export type UpdatePostRequestBody = {
   title: string
   content: string
   categories: { id: number }[]
-  thumbnailUrl: string
+  thumbnailImageUrl: string
 }
 
 // PUTという命名にすることで、PUTリクエストの時にこの関数が呼ばれる
@@ -73,11 +79,16 @@ export const PUT = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 
   // リクエストのbodyを取得
-  const { title, content, categories, thumbnailUrl }: UpdatePostRequestBody = await request.json()
+  const { title, content, categories, thumbnailImageUrl }: UpdatePostRequestBody = await request.json()
 
   try {
     // idを指定して、Postを更新
@@ -88,7 +99,7 @@ export const PUT = async (
       data: {
         title,
         content,
-        thumbnailUrl,
+        thumbnailImageUrl,
       },
     })
 
@@ -120,7 +131,7 @@ export const PUT = async (
 
 // DELETEという命名にすることで、DELETEリクエストの時にこの関数が呼ばれる
 export const DELETE = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
   // paramsの中にidが入っているので、それを取り出す

@@ -3,6 +3,9 @@
 import { CategoriesIndexResponse } from "@/app/api/admin/categories/route"
 import { useEffect, useState } from "react"
 import Select from "react-select"
+import { supabase } from "@/app/_libs/supabase"
+import { v4 as uuidv4 } from 'uuid'
+import Image from 'next/image'
 
 interface Props {
   mode: 'new' | 'edit'
@@ -10,13 +13,14 @@ interface Props {
   setTitle: (title: string) => void
   content: string
   setContent: (content: string) => void
-  thumbnailUrl: string
-  setThumbnailUrl: (thumbnailUrl: string) => void
   categories: { id: number }[]
   setCategories: (categories: { id: number }[]) => void
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   onDelete?: () => void
-  disabled: boolean;
+  disabled: boolean
+  token: string | null
+  onThumbnailImageUrlChange: (url: string) => void
+  initialThumbnailImageUrl?: string
 }
 
 export const Form: React.FC<Props> = ({
@@ -25,27 +29,83 @@ export const Form: React.FC<Props> = ({
   setTitle,
   content,
   setContent,
-  thumbnailUrl,
-  setThumbnailUrl,
   categories,
   setCategories,
   onSubmit,
   onDelete,
-  disabled
+  disabled,
+  token,
+  onThumbnailImageUrlChange,
+  initialThumbnailImageUrl
 }) => {
 
-
   const [categoryOptions, setCategoryOptions] = useState<CategoriesIndexResponse['categories']>([])
+  const [thumbnailImageKey, setThumbnailImageKey] = useState('')
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(initialThumbnailImageUrl ?? null)
 
   useEffect(() => {
+  if (initialThumbnailImageUrl) {
+    setThumbnailImageUrl(initialThumbnailImageUrl)
+  }
+}, [initialThumbnailImageUrl])
+
+
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    if (!event.target.files || event.target.files.length == 0) {
+      return
+    }
+    const file = event.target.files[0]
+    const filePath = `private/${uuidv4()}`
+    const { data, error } = await supabase.storage
+      .from('post_thumbnail')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    setThumbnailImageKey(data.path)
+
+  }
+
+  useEffect(() => {
+    if (!thumbnailImageKey) return
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories')
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from('post_thumbnail')
+        .getPublicUrl(thumbnailImageKey)
+
+      setThumbnailImageUrl(publicUrl)
+      onThumbnailImageUrlChange(publicUrl)
+    }
+    fetcher()
+  }, [thumbnailImageKey, onThumbnailImageUrlChange])
+
+  useEffect(() => {
+    if (!token) return
+
+    const fetcher = async () => {
+      const res = await fetch('/api/admin/categories', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      })
       const data = await res.json()
       const { categories }: CategoriesIndexResponse = data
       setCategoryOptions(categories)
     }
     fetcher()
-  }, [])
+  }, [token])
 
   const options = categoryOptions.map((category) => ({
     value: category.id,
@@ -57,6 +117,7 @@ export const Form: React.FC<Props> = ({
   )
 
   return (
+    // returnの中は変更なし
     <>
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
@@ -72,15 +133,31 @@ export const Form: React.FC<Props> = ({
             className="mt-1 block w-full rounded-md border border-gray-200 p-3" />
         </div>
         <div>
-          <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700">サムネイルURL</label>
-          <input name="thumbnailUrl" type="text" id="content" value={thumbnailUrl} disabled={disabled}
-            onChange={(e) => setThumbnailUrl(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-200 p-3" />
+          <label
+            htmlFor="thumbnailImageKey"
+            className="block text-sm font-medium text-gray-700"
+          >
+
+
+            サムネイルURL
+          </label>
+          <input type="file" id="thumbnailImageKey" onChange={handleImageChange} accept="image/*" />
+          {thumbnailImageUrl && (
+            <div className="mt-2">
+              <Image
+                src={thumbnailImageUrl}
+                alt="thumbnail"
+                width={400}
+                height={400}
+              />
+            </div>
+          )}
         </div>
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700">カテゴリー</label>
         </div>
         <Select
+          instanceId="category-select"
           options={options}
           isMulti
           value={selectedValues}

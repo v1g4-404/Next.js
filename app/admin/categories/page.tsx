@@ -1,6 +1,7 @@
 'use client'
 
 
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { CategoriesIndexResponse } from "@/app/api/admin/categories/route"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -8,15 +9,23 @@ import { useEffect, useState } from "react"
 export default function Page() {
 
   const [categories, setCategories] = useState<CategoriesIndexResponse['categories']>([])
+  const { token } = useSupabaseSession()
 
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/categories')
+      const res = await fetch('/api/admin/categories', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token!,
+        },
+      })
       const { categories }: CategoriesIndexResponse = await res.json()
       setCategories(categories)
     }
     fetcher()
-  }, [])
+  }, [token])
 
   return (
     <>

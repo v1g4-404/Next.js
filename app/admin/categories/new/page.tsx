@@ -3,13 +3,14 @@
 import { FormEvent, useState } from "react"
 import { Form } from "../_components/Form"
 import { useRouter } from "next/navigation";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 export default function Page() {
 
   const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
-
+  const { token } = useSupabaseSession()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,6 +24,7 @@ export default function Page() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token!,
         },
         body: JSON.stringify({ name })
       })

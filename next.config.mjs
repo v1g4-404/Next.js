@@ -7,6 +7,10 @@ const nextConfig = {
         hostname: "images.microcms-assets.io",
         pathname: "/assets/**",
       },
+      {
+        protocol: "https",
+        hostname: "anuawwmdtrcvgwwhvdfj.supabase.co",
+      },
     ],
   },
 };

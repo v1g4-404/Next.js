@@ -1,5 +1,6 @@
 "use client"
 
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { PostIndexResponse } from "@/app/api/admin/posts/route"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -7,15 +8,24 @@ import { useEffect, useState } from "react"
 export default function Posts() {
 
   const [posts, setPosts] = useState<PostIndexResponse['posts']>([])
+  const { token } = useSupabaseSession()
 
   useEffect(() => {
+    if (!token) return
+
     const fetcher = async () => {
-      const res = await fetch('/api/admin/posts', { cache: 'no-store' })
-      const { posts }: PostIndexResponse = await res.json()
-      setPosts(posts)
+      const res = await fetch('/api/admin/posts', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token, // 👈 Header に token を付与
+        },
+      })
+      const { posts } = await res.json()
+      setPosts([...posts])
     }
+
     fetcher()
-  }, [])
+  }, [token])
 
   return (
     <>
