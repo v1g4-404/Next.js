@@ -87,6 +87,13 @@ export const DELETE = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }, // ここでリクエストパラメータを受け取る
 ) => {
+
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
+
   // paramsの中にidが入っているので、それを取り出す
   const { id } = await params
 

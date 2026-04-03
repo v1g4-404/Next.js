@@ -61,7 +61,6 @@ export default function Page() {
         setCategories={setCategories}
         onSubmit={handleSubmit}
         disabled={isSubmitting}
-        token={token}
         onThumbnailImageUrlChange={setThumbnailImageUrl}
       />
     </>

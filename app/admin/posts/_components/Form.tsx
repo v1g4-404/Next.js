@@ -6,6 +6,7 @@ import Select from "react-select"
 import { supabase } from "@/app/_libs/supabase"
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 
 interface Props {
   mode: 'new' | 'edit'
@@ -18,7 +19,6 @@ interface Props {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   onDelete?: () => void
   disabled: boolean
-  token: string | null
   onThumbnailImageUrlChange: (url: string) => void
   initialThumbnailImageUrl?: string
 }
@@ -34,7 +34,6 @@ export const Form: React.FC<Props> = ({
   onSubmit,
   onDelete,
   disabled,
-  token,
   onThumbnailImageUrlChange,
   initialThumbnailImageUrl
 }) => {
@@ -42,6 +41,7 @@ export const Form: React.FC<Props> = ({
   const [categoryOptions, setCategoryOptions] = useState<CategoriesIndexResponse['categories']>([])
   const [thumbnailImageKey, setThumbnailImageKey] = useState('')
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<null | string>(initialThumbnailImageUrl ?? null)
+  const { token } = useSupabaseSession()
 
   useEffect(() => {
   if (initialThumbnailImageUrl) {

@@ -112,7 +112,6 @@ export default function Page() {
           onSubmit={handleSubmit}
           onDelete={handleDelete}
           disabled={isSubmitting}
-          token={token}
           onThumbnailImageUrlChange={setThumbnailImageUrl}
           initialThumbnailImageUrl={thumbnailImageUrl}
         />

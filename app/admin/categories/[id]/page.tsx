@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react"
 import { Form } from '../_components/Form'
 import { useParams, useRouter } from "next/navigation";
-import { UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
+import { CategoryShowResponse, UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 
 
@@ -29,8 +29,8 @@ export default function Page() {
         if (!res.ok) {
           throw new Error('カテゴリーの取得に失敗しました')
         }
-        const data = await res.json()
-        setName(data.category.name ?? '')
+        const data: CategoryShowResponse = await res.json()
+        setName(data.category.name)
       } catch (err) {
         console.log(err)
       }
@@ -50,6 +50,7 @@ export default function Page() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token!,
         },
         body: JSON.stringify(body)
       })
@@ -69,6 +70,10 @@ export default function Page() {
 
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token!,
+        }
       });
       if (!res.ok) {
         throw new Error('削除に失敗しました');
