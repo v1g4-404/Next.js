@@ -1,58 +1,46 @@
 'use client'
 
-import { Form } from "../_components/Form"
-import { FormEvent, useEffect, useState } from "react"
+import { Form, FormValues } from "../_components/Form"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { PostShowResponse } from "@/app/api/admin/posts/[id]/route"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
+import { SubmitHandler } from "react-hook-form"
+import useSWR from "swr"
 
 export default function Page() {
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [categories, setCategories] = useState<{ id: number }[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { token } = useSupabaseSession()
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState('');
 
-  useEffect(() => {
-    if (!token) return
+  const fetcher = (url: string) => fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token!,
+    },
+  }).then((res) => res.json())
 
-    const fetcher = async () => {
-      try {
-        const res = await fetch(`/api/admin/posts/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-        })
-        if (!res.ok) {
-          throw new Error('カテゴリーの取得に失敗しました')
-        }
+  const { data } = useSWR<PostShowResponse>(
+    token ? `/api/admin/posts/${id}` : null,
+    fetcher
+  )
 
-        const data: PostShowResponse = await res.json()
-        setTitle(data.post.title)
-        setContent(data.post.content)
-        setThumbnailImageUrl(data.post.thumbnailImageUrl)
-        setCategories(data.post.postCategories.map((pc: { category: { id: number } }) => ({ id: pc.category.id })))
-      } catch (err) {
-        console.log(err)
-      }
+  const defaultValues: FormValues | undefined = data?.post
+    ? {
+      title: data.post.title,
+      content: data.post.content,
+      thumbnailImageUrl: data.post.thumbnailImageUrl,
+      categories: data.post.postCategories.map((pc: { category: { id: number } }) => ({ id: pc.category.id }))
     }
-    fetcher()
-  }, [id, token])
+    : undefined
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = new FormData(e.currentTarget);
-    const title = form.get('title')
-    const content = form.get('content')
+  const onSubmit: SubmitHandler<FormValues> = async ({ title, content, categories, thumbnailImageUrl }) => {
+
+    setIsSubmitting(true)
 
     try {
-      setIsSubmitting(true)
-
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
         headers: {
@@ -103,17 +91,10 @@ export default function Page() {
         </div>
         <Form
           mode="edit"
-          title={title}
-          setTitle={setTitle}
-          content={content}
-          setContent={setContent}
-          categories={categories}
-          setCategories={setCategories}
-          onSubmit={handleSubmit}
+          defaultValues={defaultValues}
+          onSubmit={onSubmit}
           onDelete={handleDelete}
           disabled={isSubmitting}
-          onThumbnailImageUrlChange={setThumbnailImageUrl}
-          initialThumbnailImageUrl={thumbnailImageUrl}
         />
       </div>
     </>

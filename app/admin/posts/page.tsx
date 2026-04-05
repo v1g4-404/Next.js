@@ -3,29 +3,25 @@
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { PostIndexResponse } from "@/app/api/admin/posts/route"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import useSWR from "swr"
 
 export default function Posts() {
 
-  const [posts, setPosts] = useState<PostIndexResponse['posts']>([])
   const { token } = useSupabaseSession()
 
-  useEffect(() => {
-    if (!token) return
+  const fetcher = (url: string) => fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token!,
+    },
+  }).then((res) => res.json())
 
-    const fetcher = async () => {
-      const res = await fetch('/api/admin/posts', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token, // 👈 Header に token を付与
-        },
-      })
-      const { posts } = await res.json()
-      setPosts([...posts])
-    }
+  const { data } = useSWR<PostIndexResponse>(
+    token ? '/api/admin/posts' : null,
+    fetcher
+  )
 
-    fetcher()
-  }, [token])
+  const posts = data?.posts ?? []
 
   return (
     <>

@@ -1,26 +1,18 @@
 'use client'
 
-import { Form } from '../_components/Form'
-import { FormEvent, useState } from "react"
+import { Form, FormValues } from '../_components/Form'
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSupabaseSession } from '@/app/_hooks/useSupabaseSession'
+import { SubmitHandler } from 'react-hook-form'
 
 export default function Page() {
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [categories, setCategories] = useState<{ id: number }[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { token } = useSupabaseSession()
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState('')
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget)
-    const title = form.get('title')
-    const content = form.get('content')
-
+  const onSubmit: SubmitHandler<FormValues> = async ({ title, content, categories, thumbnailImageUrl }) => {
 
     try {
       setIsSubmitting(true)
@@ -53,15 +45,8 @@ export default function Page() {
       </div>
       <Form
         mode='new'
-        title={title}
-        setTitle={setTitle}
-        content={content}
-        setContent={setContent}
-        categories={categories}
-        setCategories={setCategories}
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         disabled={isSubmitting}
-        onThumbnailImageUrlChange={setThumbnailImageUrl}
       />
     </>
   )
