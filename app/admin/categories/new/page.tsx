@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from "react"
 import { Form, FormValue } from "../_components/Form"
 import { useRouter } from "next/navigation";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
@@ -8,12 +7,10 @@ import { SubmitHandler } from 'react-hook-form'
 
 export default function Page() {
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
   const { token } = useSupabaseSession()
 
   const onSubmit: SubmitHandler<FormValue> = async ({ name }) => {
-    setIsSubmitting(true);
 
     try {
       const res = await fetch('/api/admin/categories', {
@@ -31,8 +28,6 @@ export default function Page() {
     } catch (err) {
       alert('作成に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -43,7 +38,6 @@ export default function Page() {
         <Form
           mode="new"
           onSubmit={onSubmit}
-          disabled={isSubmitting}
         />
       </div>
     </>

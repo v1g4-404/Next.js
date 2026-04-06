@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import { PostShowResponse } from "@/app/api/admin/posts/[id]/route"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { SubmitHandler } from "react-hook-form"
-import useSWR from "swr"
+import { useFetch } from "@/app/_hooks/useFetch"
 
 export default function Page() {
 
@@ -15,17 +15,7 @@ export default function Page() {
   const router = useRouter()
   const { token } = useSupabaseSession()
 
-  const fetcher = (url: string) => fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token!,
-    },
-  }).then((res) => res.json())
-
-  const { data } = useSWR<PostShowResponse>(
-    token ? `/api/admin/posts/${id}` : null,
-    fetcher
-  )
+  const { data } = useFetch<PostShowResponse>(`/api/admin/posts/${id}`)
 
   const defaultValues: FormValues | undefined = data?.post
     ? {

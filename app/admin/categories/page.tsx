@@ -1,26 +1,13 @@
 'use client'
 
 
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
+import { useFetch } from "@/app/_hooks/useFetch"
 import { CategoriesIndexResponse } from "@/app/api/admin/categories/route"
 import Link from "next/link"
-import useSWR from "swr"
 
 export default function Page() {
 
-  const { token } = useSupabaseSession()
-
-  const fetcher = (url: string) => fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token!,
-    },
-  }).then((res) => res.json())
-
-  const { data } = useSWR<CategoriesIndexResponse>(
-    token ? '/api/admin/categories' : null,
-    fetcher
-  )
+  const { data } = useFetch<CategoriesIndexResponse>('/api/admin/categories')
 
   const categories = data?.categories ?? []
 

@@ -6,9 +6,8 @@ import Select from "react-select"
 import { supabase } from "@/app/_libs/supabase"
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
 import { SubmitHandler, useForm } from "react-hook-form"
-import useSWR from "swr"
+import { useFetch } from "@/app/_hooks/useFetch"
 
 export type FormValues = {
   title: string
@@ -37,7 +36,6 @@ export const Form: React.FC<Props> = ({
   const thumbnailImageUrl = watch('thumbnailImageUrl')
   const categories = watch('categories') ?? []
   const [thumbnailImageKey, setThumbnailImageKey] = useState('')
-  const { token } = useSupabaseSession()
 
   useEffect(() => {
     reset(defaultValues)
@@ -83,17 +81,7 @@ export const Form: React.FC<Props> = ({
     fetcher()
   }, [thumbnailImageKey, setValue])
 
-  const fetcher = (url: string) => fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token!,
-    },
-  }).then((res) => res.json())
-
-  const { data } = useSWR<CategoriesIndexResponse>(
-    token ? '/api/admin/categories' : null,
-    fetcher
-  )
+  const { data } = useFetch<CategoriesIndexResponse>('/api/admin/categories')
 
   const categoriesOptions = data?.categories ?? []
 

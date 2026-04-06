@@ -13,7 +13,6 @@ interface Props {
   defaultValues?: FormValue
   onSubmit: SubmitHandler<FormValue>
   onDelete?: () => void
-  disabled: boolean;
 }
 
 export const Form: React.FC<Props> = ({
@@ -21,10 +20,9 @@ export const Form: React.FC<Props> = ({
   defaultValues,
   onSubmit,
   onDelete,
-  disabled
 }) => {
 
-  const { register, handleSubmit, reset } = useForm<FormValue>({ defaultValues })
+  const { register, handleSubmit, reset, formState: {isSubmitting, errors} } = useForm<FormValue>({ defaultValues })
 
   useEffect(() => {
     reset(defaultValues)
@@ -40,16 +38,19 @@ export const Form: React.FC<Props> = ({
             type="text"
             id="name"
             className="mt-1 block w-full rounded-md border border-gray-200 p-3"
-            disabled={disabled}
+            disabled={isSubmitting}
           />
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+          )}
           <button type="submit" className="mt-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            disabled={disabled}>
+            disabled={isSubmitting}>
             {mode === 'new' ? '作成' : '更新'}
           </button>
           {mode === 'edit' && (
             <button className="mt-2 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus-ring-offset-2 focus:ring-red-500 ml-2"
               onClick={onDelete}
-              disabled={disabled}
+              disabled={isSubmitting}
               type="button">
               削除
             </button>

@@ -1,25 +1,12 @@
 "use client"
 
-import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
+import { useFetch } from "@/app/_hooks/useFetch"
 import { PostIndexResponse } from "@/app/api/admin/posts/route"
 import Link from "next/link"
-import useSWR from "swr"
 
 export default function Posts() {
 
-  const { token } = useSupabaseSession()
-
-  const fetcher = (url: string) => fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token!,
-    },
-  }).then((res) => res.json())
-
-  const { data } = useSWR<PostIndexResponse>(
-    token ? '/api/admin/posts' : null,
-    fetcher
-  )
+  const { data } = useFetch<PostIndexResponse>('/api/admin/posts')
 
   const posts = data?.posts ?? []
 
