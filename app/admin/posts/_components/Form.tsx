@@ -21,7 +21,6 @@ interface Props {
   defaultValues?: FormValues
   onSubmit: SubmitHandler<FormValues>
   onDelete?: () => void
-  disabled: boolean
 }
 
 export const Form: React.FC<Props> = ({
@@ -29,10 +28,9 @@ export const Form: React.FC<Props> = ({
   defaultValues,
   onSubmit,
   onDelete,
-  disabled,
 }) => {
 
-  const { register, handleSubmit, reset, setValue, watch } = useForm<FormValues>({ defaultValues })
+  const { register, handleSubmit, reset, setValue, watch, formState: { isSubmitting, errors } } = useForm<FormValues>({ defaultValues })
   const thumbnailImageUrl = watch('thumbnailImageUrl')
   const categories = watch('categories') ?? []
   const [thumbnailImageKey, setThumbnailImageKey] = useState('')
@@ -100,21 +98,23 @@ export const Form: React.FC<Props> = ({
         <div>
           <label htmlFor="title" className="block test-sm font-medium text-gray-700">タイトル</label>
           <input
-            {...register('title')}
+            {...register('title', { required: 'タイトルは必須です' })}
             type="text"
             id="name"
             className="mt-1 block w-full rounded-md border border-gray-200 p-3"
-            disabled={disabled}
+            disabled={isSubmitting}
           />
+          {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
         </div>
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">内容</label>
           <textarea
-            {...register('content')}
+            {...register('content', { required: '内容は必須です' })}
             id="content"
             className="mt-1 block w-full rounded-md border border-gray-200 p-3"
-            disabled={disabled}
+            disabled={isSubmitting}
           />
+          {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>}
         </div>
         <div>
           <label
@@ -149,14 +149,14 @@ export const Form: React.FC<Props> = ({
         />
         <button type="submit"
           className="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          disabled={disabled}>
+          disabled={isSubmitting}>
           {mode === 'new' ? '作成' : '更新'}
         </button>
         {mode === 'edit' && (
           <button type="button"
             className="py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus-ring-offset-2 focus:ring-red-500 ml-2"
             onClick={onDelete}
-            disabled={disabled}>
+            disabled={isSubmitting}>
             削除
           </button>
         )}

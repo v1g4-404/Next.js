@@ -1,7 +1,6 @@
 'use client'
 
 import { Form, FormValues } from "../_components/Form"
-import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { PostShowResponse } from "@/app/api/admin/posts/[id]/route"
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession"
@@ -10,7 +9,6 @@ import { useFetch } from "@/app/_hooks/useFetch"
 
 export default function Page() {
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { token } = useSupabaseSession()
@@ -28,8 +26,6 @@ export default function Page() {
 
   const onSubmit: SubmitHandler<FormValues> = async ({ title, content, categories, thumbnailImageUrl }) => {
 
-    setIsSubmitting(true)
-
     try {
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
@@ -44,14 +40,11 @@ export default function Page() {
     } catch (err) {
       alert('更新に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
     try {
-      setIsSubmitting(true)
 
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: 'DELETE',
@@ -68,8 +61,6 @@ export default function Page() {
     } catch (err) {
       alert('削除に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -84,7 +75,6 @@ export default function Page() {
           defaultValues={defaultValues}
           onSubmit={onSubmit}
           onDelete={handleDelete}
-          disabled={isSubmitting}
         />
       </div>
     </>

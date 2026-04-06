@@ -34,7 +34,7 @@ export const Form: React.FC<Props> = ({
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">カテゴリー名</label>
           <input
-            {...register('name')}
+            {...register('name', { required: 'カテゴリー名は必須です' })}
             type="text"
             id="name"
             className="mt-1 block w-full rounded-md border border-gray-200 p-3"
