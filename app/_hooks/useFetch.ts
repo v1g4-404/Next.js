@@ -1,7 +1,7 @@
 import { useSupabaseSession } from "./useSupabaseSession"
 import useSWR from "swr"
 
-export const useFetch = <T>(endpoint: string | null) => {
+export const useFetch = <T>(endpoint: string) => {
   const { token } = useSupabaseSession()
 
   const fetcher = async (url: string) => {
@@ -15,7 +15,7 @@ export const useFetch = <T>(endpoint: string | null) => {
   }
 
   return useSWR<T>(
-    token && endpoint ? endpoint : null,
+    token ? endpoint : null,
     fetcher
   )
 }
