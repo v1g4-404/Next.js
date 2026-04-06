@@ -1,28 +1,23 @@
 'use client'
 
-import { FormEvent, useState } from "react"
-import { Form } from "../_components/Form"
+import { Form, FormValue } from "../_components/Form"
 import { useRouter } from "next/navigation";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { SubmitHandler } from 'react-hook-form'
 
 export default function Page() {
 
-  const [name, setName] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter()
+  const { token } = useSupabaseSession()
 
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const name = form.get('name');
+  const onSubmit: SubmitHandler<FormValue> = async ({ name }) => {
 
     try {
-      setIsSubmitting(true);
-
       const res = await fetch('/api/admin/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token!,
         },
         body: JSON.stringify({ name })
       })
@@ -33,8 +28,6 @@ export default function Page() {
     } catch (err) {
       alert('作成に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -44,10 +37,7 @@ export default function Page() {
       <div>
         <Form
           mode="new"
-          name={name}
-          setName={setName}
-          onSubmit={handleSubmit}
-          disabled={isSubmitting}
+          onSubmit={onSubmit}
         />
       </div>
     </>

@@ -1,48 +1,34 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from "react"
-import { Form } from '../_components/Form'
+import { Form, FormValue } from '../_components/Form'
 import { useParams, useRouter } from "next/navigation";
-import { UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
+import { CategoryShowResponse, UpdateCategoryRequestBody } from "@/app/api/admin/categories/[id]/route";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { SubmitHandler } from "react-hook-form";
+import { useFetch } from "@/app/_hooks/useFetch";
 
 
 export default function Page() {
 
-  const [name, setName] = useState('')
-  const [isSubmiting, setIsSubmitting] = useState(false);
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { token } = useSupabaseSession()
 
-  useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const res = await fetch(`/api/admin/categories/${id}`)
+  const { data } = useFetch<CategoryShowResponse>(`/api/admin/categories/${id}`)
 
-        if (!res.ok) {
-          throw new Error('カテゴリーの取得に失敗しました')
-        }
+  const defaultValues: FormValue | undefined = data?.category
+    ? { name: data.category.name }
+    : undefined
 
-        const data = await res.json()
-        setName(data.category.name ?? '')
-      } catch (err) {
-        console.log(err)
-      }
-    }
-
-    fetchCategory()
-  }, [id])
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<FormValue> = async ({ name }) => {
 
     try {
-      setIsSubmitting(true)
-
-      const body: UpdateCategoryRequestBody = {name}
+      const body: UpdateCategoryRequestBody = { name }
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token!,
         },
         body: JSON.stringify(body)
       })
@@ -51,17 +37,18 @@ export default function Page() {
     } catch (err) {
       alert('更新に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
   const handleDelete = async () => {
     try {
-      setIsSubmitting(true);
 
       const res = await fetch(`/api/admin/categories/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token!,
+        }
       });
       if (!res.ok) {
         throw new Error('削除に失敗しました');
@@ -71,8 +58,6 @@ export default function Page() {
     } catch (err) {
       alert('削除に失敗しました')
       console.log(err)
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -82,11 +67,9 @@ export default function Page() {
       <div>
         <Form
           mode="edit"
-          name={name}
-          setName={setName}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           onDelete={handleDelete}
-          disabled={isSubmiting}
+          defaultValues={defaultValues}
         />
       </div>
     </>

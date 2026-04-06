@@ -2,7 +2,6 @@
 
 
 import { ApiPost } from "@/app/_components/_types/Posts";
-// import { Post } from "@/app/_components/_types/Post";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -54,8 +53,8 @@ export default function PostDetail() {
   }
 
   const thumb =
-  post.thumbnailUrl?.startsWith("/") || post.thumbnailUrl?.startsWith("http")
-    ? post.thumbnailUrl
+  post.thumbnailImageUrl?.startsWith("/") || post.thumbnailImageUrl?.startsWith("http")
+    ? post.thumbnailImageUrl
     : "/no-image.png"
 
   return (

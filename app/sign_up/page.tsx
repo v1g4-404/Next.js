@@ -1,31 +1,32 @@
 'use client'
 
 import { supabase } from '@/app/_libs/supabase'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { Input } from '../_components/_types/Input'
 
 export default function Page() {
   const { register, handleSubmit } = useForm<Input>()
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onSubmit: SubmitHandler<Input> = async ({ email, password }) => {
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-    })
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/login`,
 
+      },
+    })
     if (error) {
-      alert('ログインに失敗しました')
+      alert('登録に失敗しました')
     } else {
-      router.replace('/admin/posts')
+      alert('確認メールを送信しました。')
     }
-    setIsLoading(false)
+    setIsSubmitting(false)
   }
 
   return (
@@ -40,11 +41,11 @@ export default function Page() {
           </label>
           <input
             {...register('email')}
+            type='email'
+            id='email'
             placeholder='name@company.com'
             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-            disabled={isLoading}
-            id='email'
-            type='email'
+            disabled={isSubmitting}
           />
         </div>
         <div>
@@ -56,21 +57,20 @@ export default function Page() {
           </label>
           <input
             {...register('password')}
+            type='password'
+            id='password'
             placeholder='••••••••'
             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-            disabled={isLoading}
-            id='password'
-            type='password'
+            disabled={isSubmitting}
           />
         </div>
-
         <div>
           <button
             type="submit"
             className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
-            ログイン
+            登録
           </button>
         </div>
       </form>

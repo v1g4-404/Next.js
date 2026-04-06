@@ -1,22 +1,15 @@
 'use client'
 
 
+import { useFetch } from "@/app/_hooks/useFetch"
 import { CategoriesIndexResponse } from "@/app/api/admin/categories/route"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 export default function Page() {
 
-  const [categories, setCategories] = useState<CategoriesIndexResponse['categories']>([])
+  const { data } = useFetch<CategoriesIndexResponse>('/api/admin/categories')
 
-  useEffect(() => {
-    const fetcher = async () => {
-      const res = await fetch('/api/admin/categories')
-      const { categories }: CategoriesIndexResponse = await res.json()
-      setCategories(categories)
-    }
-    fetcher()
-  }, [])
+  const categories = data?.categories ?? []
 
   return (
     <>

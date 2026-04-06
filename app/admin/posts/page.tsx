@@ -1,21 +1,14 @@
 "use client"
 
+import { useFetch } from "@/app/_hooks/useFetch"
 import { PostIndexResponse } from "@/app/api/admin/posts/route"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 export default function Posts() {
 
-  const [posts, setPosts] = useState<PostIndexResponse['posts']>([])
+  const { data } = useFetch<PostIndexResponse>('/api/admin/posts')
 
-  useEffect(() => {
-    const fetcher = async () => {
-      const res = await fetch('/api/admin/posts', { cache: 'no-store' })
-      const { posts }: PostIndexResponse = await res.json()
-      setPosts(posts)
-    }
-    fetcher()
-  }, [])
+  const posts = data?.posts ?? []
 
   return (
     <>
